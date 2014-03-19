@@ -1,29 +1,16 @@
 require(["dojo/on", "dojo/domReady!"], function (on) {
 
-  on(document, "keydown", function (event) {
-    if (event.keyCode === 37) {
-      app.moveLeft();
-    }
-    if (event.keyCode === 39) {
-      app.moveRight();
-    }
-  });
-
-  on(document, "keypress", function (event) {
-    if (event.keyCode === 32) {
-      app.stopPause();
-    }
-  });
 
   var app = {
+    status: 'hold',
     road: document.getElementById('road'),
     info: document.getElementById('info'),
     boom: document.createElement('div'),
     stopPauseBtn: document.createElement('button'),
-    audio : document.createElement('audio')
+    audio: document.createElement('audio')
   };
 
-  app.insertAudio = function(){
+  app.insertAudio = function () {
     this.audio.src = 'audio/tetris.mp3';
     document.body.appendChild(this.audio);
   };
@@ -43,12 +30,17 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
   };
 
   app.stopPause = function () {
+    if (this.status === 'end') {
+      return;
+    }
     var that = this;
     if (timer) {
+      this.status = 'paue';
       clearInterval(timer);
       app.audio.pause();
       timer = null;
     } else {
+      this.status = 'start';
       timer = setInterval(that.startGame, 2);
       app.audio.play();
     }
@@ -65,12 +57,32 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
     }
   };
 
-
   app.insertCar = function () {
     document.body.appendChild(this.car);
   };
 
+  app.move = function(){
+    var that = this;
+    on(document, "keydown", function (event) {
+      if (event.keyCode === 37) {
+        that.moveLeft();
+      }
+      if (event.keyCode === 39) {
+        that.moveRight();
+      }
+    });
+
+    on(document, "keypress", function (event) {
+      if (event.keyCode === 32) {
+        that.stopPause();
+      }
+    });
+  };
+
   app.moveRight = function () {
+    if (this.status !== 'start') {
+      return;
+    }
     var margin = parseInt(this.car.style.marginLeft) || 0;
     margin += 20;
     margin < this.road.offsetWidth - this.car.offsetWidth ?
@@ -79,6 +91,9 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
   };
 
   app.moveLeft = function () {
+    if (this.status !== 'start') {
+      return;
+    }
     var margin = parseInt(this.car.style.marginLeft) || 0;
     margin -= 20;
     margin > 0 ?
@@ -99,14 +114,15 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
     div.className = 'wall';
     div.style.width = width + 'px';
     div.style.height = 50 + 'px';
-    div.style.backgroundColor = 'red';
+    div.style.backgroundColor = '#000';
+    div.style.boxShadow = '0 0 1px #fff, 0 0 2px #ff9490, 0 0 3px #ff6246, 0 0 4px #ff6130, 0 0 5px #ff0200, 0 0 6px #00d2ff, 0 0 9px #00d2ff';
     div.style.position = 'absolute';
     div.style.left = positionX + 'px';
     document.body.appendChild(div);
   };
 
   app.endGame = function () {
-    this.road.style.background = '#FF6359';
+    this.road.style.background = '#000';
     this.boom.innerHTML = 'Looooose<br>You score is ' + this.score.innerHTML;
     this.boom.style.color = '#fff';
     this.boom.style.fontSize = '40px';
@@ -115,6 +131,7 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
     this.boom.style.left = '600px';
     document.body.appendChild(this.boom);
     this.audio.pause();
+    this.status = 'end';
   };
 
   app.startGame = function () {
@@ -163,7 +180,9 @@ require(["dojo/on", "dojo/domReady!"], function (on) {
   app.insertCar();
   app.createWall();
   app.createStopPause();
+  app.move();
   app.insertAudio();
+  app.status = 'start';
 
 
   app.road.style.height = window.innerHeight + 'px';

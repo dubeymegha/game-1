@@ -1,10 +1,10 @@
 #car {
-  border: 1px solid #000;
-  background: #ccc;
+  background: #000;
   width: 50px;
   height: 50px;
   position: absolute;
-  bottom: 0;
+  bottom: 2px;
+  box-shadow: 0 0 1px #fff, 0 0 2px #00d2ff, 0 0 3px #00d2ff, 0 0 4px #00d2ff, 0 0 5px #00d2ff, 0 0 6px #00d2ff, 0 0 7px #00d2ff;
 }
 #score {
   background: #fff;
@@ -19,7 +19,7 @@
 #road {
   float: left;
   width: 80%;
-  background: #ccc;
+  background: #000;
 }
 
 #info {
